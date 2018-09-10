@@ -25,3 +25,8 @@ Before executing cloudformation template, upload the python script Ec2Shutdown-l
                 },
                 "Timeout": 300
             }
+
+
+## Authors
+
+* **Prashant Patankar** - *Initial work* - [plpatankar](https://github.com/plpatankar)

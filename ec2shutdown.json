@@ -1,0 +1,81 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {
+    },
+    "Resources": {
+	
+        "NightSchedule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "NightSchedule",
+                "ScheduleExpression": "cron(0 3 * * ? *)",
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "Ec2Shutdown",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "Ec2Shutdown"
+                    }
+                ]
+            }
+        },
+		
+        "PermissionForEventsToInvokeLambda": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Ref": "Ec2Shutdown"
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "events.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "NightSchedule",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+		"LambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+			    "RoleName": "LambdaExecutionRole",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                }
+            }
+        },
+        "Ec2Shutdown": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Handler": "Ec2Shutdown-lambda-code",
+                "MemorySize": 128,
+                "Runtime": "python2.7",
+				"Role": {
+                    "Fn::GetAtt": [
+                        "LambdaExecutionRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "S3Bucket": "ec2shutdownlambdacode",
+                    "S3Key": "Ec2Shutdown-lambda-code.zip"
+                },
+                "Timeout": 300
+            }
+        }
+    }
+}

@@ -2,13 +2,35 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Metadata": {
     },
+	"Parameters" :{
+	    "ScheduledCron": {
+		        "Type": "String",
+				"Default": "cron(0 3 * * ? *)",
+				"Description": "Schedule time for cron to execute lambda function"
+		 },
+		"LambdaHandler": {
+				"Type": "String",
+				"Default": "Ec2Shutdown-lambda-code",
+				"Description": "File name for lambda function uploaded to S3"
+		},
+		"LambdaCodeS3Bucket": {
+				"Type": "String",
+				"Default": "ec2shutdownlambdacode",
+				"Description": "S3Bucket name where lambda function is uploaded"
+		},
+		"LambdaCodeS3BucketKey": {
+				"Type": "String",
+				"Default": "Ec2Shutdown-lambda-code.zip",
+				"Description": "S3Bucket Key name where lambda function is uploaded"
+		}
+	},
     "Resources": {
 	
         "NightSchedule": {
             "Type": "AWS::Events::Rule",
             "Properties": {
                 "Description": "NightSchedule",
-                "ScheduleExpression": "cron(0 3 * * ? *)",
+                "ScheduleExpression": { "Ref": "ScheduledCron" },
                 "State": "ENABLED",
                 "Targets": [
                     {
@@ -61,7 +83,7 @@
         "Ec2Shutdown": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
-                "Handler": "Ec2Shutdown-lambda-code",
+                "Handler": { "Ref": "LambdaHandler" },
                 "MemorySize": 128,
                 "Runtime": "python2.7",
 				"Role": {
@@ -71,8 +93,8 @@
                     ]
                 },
                 "Code": {
-                    "S3Bucket": "ec2shutdownlambdacode",
-                    "S3Key": "Ec2Shutdown-lambda-code.zip"
+                    "S3Bucket": { "Ref": "LambdaCodeS3Bucket" },
+                    "S3Key": { "Ref": "LambdaCodeS3BucketKey" }
                 },
                 "Timeout": 300
             }

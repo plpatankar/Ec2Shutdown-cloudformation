@@ -10,7 +10,7 @@
 		 },
 		"LambdaHandler": {
 				"Type": "String",
-				"Default": "Ec2Shutdown-lambda-code",
+				"Default": "Ec2Shutdown-lambda-code.lambda_handler",
 				"Description": "File name for lambda function uploaded to S3"
 		},
 		"LambdaCodeS3Bucket": {
